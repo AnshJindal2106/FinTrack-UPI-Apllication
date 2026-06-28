@@ -3,7 +3,7 @@ import {
   LayoutDashboard, 
   ReceiptText, 
   BarChart3, 
-  Gift, 
+  Gift as GiftIcon, 
   Search, 
   Bell, 
   Moon, 
@@ -27,7 +27,7 @@ const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', active: true },
   { icon: ReceiptText, label: 'Transactions', active: false },
   { icon: BarChart3, label: 'Analytics', active: false },
-  { icon: Gift, label: 'Rewards', active: false }
+  { icon: GiftIcon, label: 'Rewards', active: false }
 ];
 
 function getGreeting() {
@@ -167,66 +167,136 @@ export default function App() {
 
       {/* Main Content */}
       <main className="relative mx-auto max-w-7xl px-6 py-10">
-        {/* Welcome Header */}
-        <motion.section 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div>
-                    <p className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">{getGreeting()} 👋</p>
-                    <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">Welcome back!</h2>
-                    <p className="mt-2 text-slate-500 dark:text-slate-400">Here's your financial overview for today</p>
-                  </div>
-          <div className="flex items-center gap-3 rounded-2xl bg-white/60 px-5 py-3 shadow-sm backdrop-blur-xl dark:bg-white/5">
-            <Calendar className="text-indigo-500" size={20} />
-            <div className="text-sm">
-              <p className="font-semibold text-slate-800 dark:text-slate-100">{formatCurrentDate()}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                <Clock size={12} /> Last updated just now
-              </p>
+        {/* Welcome Header for Dashboard */}
+        {activeNav === "Dashboard" && (
+          <motion.section 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div>
+              <p className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">{getGreeting()} 👋</p>
+              <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">Welcome back!</h2>
+              <p className="mt-2 text-slate-500 dark:text-slate-400">Here's your financial overview for today</p>
             </div>
-          </div>
-        </motion.section>
+            <div className="flex items-center gap-3 rounded-2xl bg-white/60 px-5 py-3 shadow-sm backdrop-blur-xl dark:bg-white/5">
+              <Calendar className="text-indigo-500" size={20} />
+              <div className="text-sm">
+                <p className="font-semibold text-slate-800 dark:text-slate-100">{formatCurrentDate()}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                  <Clock size={12} /> Last updated just now
+                </p>
+              </div>
+            </div>
+          </motion.section>
+        )}
 
-        {/* Summary Cards */}
-        <section className="mb-8 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {cards.map(([label, value, type], index) => (
-            loading && !summary ? (
-              <motion.div 
-                key={label}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: index * 0.1 }}
-                className="glass-card h-44 animate-pulse"
-              />
-            ) : (
-              <SummaryCard key={label} label={label} value={value} type={type} index={index} />
-            )
-          ))}
-        </section>
-
-        {/* Analytics & Transactions */}
-        <div className="grid gap-8 lg:grid-cols-3">
-          {/* Left Column: Category Progress & Chart */}
-          <div className="space-y-8 lg:col-span-1">
-            {/* Category Progress Cards */}
-            <section className="space-y-3">
-              <h3 className="text-lg font-bold">Category Progress</h3>
-              {categories.map((category, index) => (
-                <CategoryCard key={category} category={category} amount={summary?.categoryTotals?.[category] ?? 0} maximum={maximum} index={index} />
+        {/* Dashboard Section */}
+        {activeNav === "Dashboard" && (
+          <>
+            {/* Summary Cards */}
+            <section className="mb-8 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {cards.map(([label, value, type], index) => (
+                loading && !summary ? (
+                  <motion.div 
+                    key={label}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="glass-card h-44 animate-pulse"
+                  />
+                ) : (
+                  <SummaryCard key={label} label={label} value={value} type={type} index={index} />
+                )
               ))}
             </section>
 
-            {/* Pie Chart */}
-            <CategoryChart totals={summary?.categoryTotals} />
-          </div>
+            {/* Analytics & Transactions */}
+            <div className="grid gap-8 lg:grid-cols-3">
+              {/* Left Column: Category Progress & Chart */}
+              <div className="space-y-8 lg:col-span-1">
+                {/* Category Progress Cards */}
+                <section className="space-y-3">
+                  <h3 className="text-lg font-bold">Category Progress</h3>
+                  {categories.map((category, index) => (
+                    <CategoryCard key={category} category={category} amount={summary?.categoryTotals?.[category] ?? 0} maximum={maximum} index={index} />
+                  ))}
+                </section>
 
-          {/* Right Column: Transaction Timeline */}
-          <div className="lg:col-span-2">
+                {/* Pie Chart */}
+                <CategoryChart totals={summary?.categoryTotals} />
+              </div>
+
+              {/* Right Column: Transaction Timeline */}
+              <div className="lg:col-span-2">
+                <TransactionTimeline />
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Transactions Section */}
+        {activeNav === "Transactions" && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <h2 className="mb-6 text-3xl font-bold tracking-tight">All Transactions</h2>
             <TransactionTimeline />
-          </div>
-        </div>
+          </motion.div>
+        )}
+
+        {/* Analytics Section */}
+        {activeNav === "Analytics" && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="grid gap-8"
+          >
+            <h2 className="mb-2 text-3xl font-bold tracking-tight">Analytics</h2>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {cards.map(([label, value, type], index) => (
+                loading && !summary ? (
+                  <motion.div 
+                    key={label}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="glass-card h-44 animate-pulse"
+                  />
+                ) : (
+                  <SummaryCard key={label} label={label} value={value} type={type} index={index} />
+                )
+              ))}
+            </div>
+            <div className="grid gap-8 lg:grid-cols-2">
+              <div className="space-y-3">
+                <h3 className="text-xl font-bold">Category Progress</h3>
+                {categories.map((category, index) => (
+                  <CategoryCard key={category} category={category} amount={summary?.categoryTotals?.[category] ?? 0} maximum={maximum} index={index} />
+                ))}
+              </div>
+              <CategoryChart totals={summary?.categoryTotals} />
+            </div>
+          </motion.div>
+        )}
+
+        {/* Rewards Section (Placeholder) */}
+        {activeNav === "Rewards" && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="grid min-h-[60vh] place-items-center text-center"
+          >
+            <div>
+              <div className="mx-auto grid h-24 w-24 place-items-center rounded-3xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-xl">
+                <GiftIcon size={48} />
+              </div>
+              <h2 className="mt-6 text-3xl font-bold tracking-tight">Coming Soon!</h2>
+              <p className="mt-2 text-slate-500 dark:text-slate-400">Rewards program will be available in a future update</p>
+            </div>
+          </motion.div>
+        )}
 
         <footer className="mt-16 text-center text-sm text-slate-500 dark:text-slate-400">
           FinTrack Pro · Built with ❤️ for financial clarity
