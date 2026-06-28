@@ -1,4 +1,4 @@
-# UPI Pulse
+# FinTrack UPI 
 
 A full-stack UPI transaction dashboard. Financial parsing, categorization, filtering, sorting, and summary calculations all run in the Express API.
 
